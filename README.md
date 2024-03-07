@@ -14,11 +14,12 @@ docker-compose up --build
 ```
 
 # info
-- http://localhost
+- website: http://localhost
 - username: admin
 - password: password
 
 # database info
+- phpmyadmin: http://localhost:8080
 - host: localhost
 - port: 3306
 - username: exampleuser
