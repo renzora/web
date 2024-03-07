@@ -31,7 +31,7 @@ WORKDIR /var/www/html
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy the app files
-COPY ./app/ /var/www/html
+COPY ./app/ /var/www/html/app
 
 # Change ownership of Apache document root
 RUN chown -R www-data:www-data /var/www/html
@@ -40,11 +40,7 @@ RUN chown -R www-data:www-data /var/www/html
 WORKDIR /var/www/html/app
 
 # Install Composer dependencies
-COPY ./app/composer.json ./app/composer.lock ./
 RUN composer install --no-scripts --no-autoloader
-
-# Copy the rest of the app files
-COPY ./app .
 
 # Generate Composer autoload files
 RUN composer dump-autoload --optimize

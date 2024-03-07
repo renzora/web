@@ -7,7 +7,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./app:/var/www/html
+      - ./app:/var/www/html/app  # Mount app directory as a volume
       - ./server:/server
     environment:
       DB_HOST: db
@@ -17,6 +17,7 @@ services:
       DB_DATABASE: exampledb
     depends_on:
       - db
+    command: ["bash", "-c", "composer install --working-dir=/var/www/html/app --no-scripts --no-autoloader"]
 
   server:
     build:
