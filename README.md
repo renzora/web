@@ -14,6 +14,7 @@ docker-compose up --build
 ```
 
 # info
+- http://localhost
 - username: admin
 - password: password
 
