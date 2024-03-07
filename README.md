@@ -6,10 +6,12 @@
 - composer PHP
 
 # Installation
-```git clone https://github.com/renzora/web
+```
+git clone https://github.com/renzora/web
 cd web
 composer install
-docker-compose up --build```
+docker-compose up --build
+```
 
 # info
 - username: admin
