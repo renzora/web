@@ -1,0 +1,9 @@
+{
+    "item1": {
+        "tiles": [0,1,2],
+        "layout": [
+            {"x": 0, "y": 0, "walk": true, "stack":true, "zindex": 1}],
+        "category": "roombuilder",
+        "type": "floor"
+    }
+}

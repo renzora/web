@@ -1,0 +1,7 @@
+{
+    "num_channels": 5,
+    "instruments": [
+        {"oscillator": 1, "envelope": { "attack_time": 0.005, "attack_gain": 1, "decay_time": 0.1, "sustain_gain": 0.1, "release_time": 1 }}
+    ],
+    "patterns": []
+}
