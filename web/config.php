@@ -1,7 +1,7 @@
 <?php
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
-$dotenvPath = '/server'; // Path to the shared volume
+$dotenvPath = '../housekeeping';
 $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
 $dotenv->load();
 
