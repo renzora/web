@@ -1,7 +1,6 @@
 # Installation
 ```
 git clone https://github.com/renzora/dev
-cd web
-composer install
+cd dev
 docker-compose up --build
 ```
