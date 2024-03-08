@@ -1,10 +1,6 @@
 <?php
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
-$dotenvPath = '../housekeeping';
-$dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
-$dotenv->load();
-
 use Firebase\JWT\JWT;
 use Firebase\JWT\KEY;
 
