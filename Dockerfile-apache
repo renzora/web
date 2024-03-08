@@ -21,9 +21,6 @@ RUN docker-php-ext-install pdo_mysql gd zip
 # Enable Apache modules
 RUN a2enmod rewrite
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
 # Set working directory for Apache
 WORKDIR /var/www/html
 
@@ -31,19 +28,13 @@ WORKDIR /var/www/html
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy the app files
-COPY ./app/ /var/www/html/app
+COPY ./app/ /var/www/html
 
 # Change ownership of Apache document root
 RUN chown -R www-data:www-data /var/www/html
 
 # Set working directory for the app
 WORKDIR /var/www/html/app
-
-# Install Composer dependencies
-RUN composer install --no-scripts --no-autoloader
-
-# Generate Composer autoload files
-RUN composer dump-autoload --optimize
 
 # Expose port 80 for Apache
 EXPOSE 80
