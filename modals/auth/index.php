@@ -93,7 +93,7 @@ if(!$auth) {
               if(data.message == 'login_complete') {
                 ui.loadGui();
                 ui.loadScene(localStorage.getItem('room'));
-                ui.notif("You are now signed in as " + network.getToken('renaccount'), 'bottom-center');
+                ui.notif("You are now signed in as " + login_username, 'bottom-center');
                 ui.closeModal("auth_window");
               } else {
                 ui.modal('auth/error.php?code=' + data.message, 'auth_error_window');
