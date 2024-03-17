@@ -61,8 +61,6 @@ if ($auth) {
     <script>
     var servers_window = {
         start: function() {
-            document.addEventListener('server_counts', this.updateRoomCounts);
-            document.addEventListener('server_update', this.handleRoomUpdate); // Listen for server updates
             this.search();
         },
         search: function() {
@@ -73,7 +71,7 @@ if ($auth) {
                 data: 'search=' + encodeURIComponent(servers_window_search) + '&category=' + encodeURIComponent(servers_window_category),
                 success: function(data) {
                     ui.html('#servers_window_search_result', data, 'html');
-                    this.requestRoomCounts();
+
                 }.bind(this) // Ensure this refers to servers_window
             });
         },
@@ -85,51 +83,7 @@ if ($auth) {
             ui.modal('servers/join.php', 'serverjoin_window');
             ui.hideModal('servers_window');
         },
-        requestRoomCounts: function() {
-        var serverElements = document.querySelectorAll('[data-server-id]');
-        var serverIds = Array.from(serverElements).map(el => el.getAttribute('data-server-id'));
-        network.send({ command: 'request_server_counts', serverIds: serverIds });
-    },
 
-    updateRoomCounts: function(event) {
-        var data = event.detail;
-        if (data.command === "server_counts") {
-            var allRoomElements = document.querySelectorAll('[data-server-id]');
-            allRoomElements.forEach(function(serverElement) {
-                var countElement = serverElement.querySelector('.server-count');
-                if (countElement) {
-                    countElement.textContent = 0;
-                }
-            });
-
-            data.counts.forEach(function(server) {
-                var serverElement = document.querySelector('[data-server-id="' + server.serverId + '"]');
-                if (serverElement) {
-                    var countElement = serverElement.querySelector('.server-count');
-                    if (countElement) {
-                        countElement.textContent = server.count;
-                        // Apply the background color directly using hex values
-                        servers_window.applyBackgroundColor(serverElement, server.count);
-                    }
-                }
-            });
-        }
-    },
-
-    handleRoomUpdate: function(event) {
-        var data = event.detail;
-        if (data.command === "server_update") {
-            var serverElement = document.querySelector('[data-server-id="' + data.server + '"]');
-            if (serverElement) {
-                var countElement = serverElement.querySelector('.server-count');
-                if (countElement) {
-                    countElement.textContent = data.count; // Update with the new count
-                    // Apply the background color directly using hex values
-                    servers_window.applyBackgroundColor(serverElement, data.count);
-                }
-            }
-        }
-    },
         category_change: function(event) {
             var clickedLi = event.target.closest('li');
             var servers_window_category = clickedLi.getAttribute('data-category');
@@ -148,34 +102,8 @@ if ($auth) {
             document.getElementById('servers_window_search').value = '';
             this.search();
         },
-        applyBackgroundColor: function(element, count) {
-            element.classList.remove('bg-green-100', 'bg-yellow-100', 'bg-orange-100', 'bg-red-100', 'bg-red-500', 'bg-red-700');
-
-// If the count is 0, do not apply any new background color class
-if (count === 0) {
-    return;
-}
-
-let colorClass;
-if (count <= 10) {
-    colorClass = 'bg-green-100';
-} else if (count <= 20) {
-    colorClass = 'bg-yellow-100';
-} else if (count <= 40) {
-    colorClass = 'bg-orange-100';
-} else if (count <= 45) {
-    colorClass = 'bg-red-100';
-} else if (count <= 49) {
-    colorClass = 'bg-red-500';
-} else {
-    colorClass = 'bg-red-700';
-}
-
-element.classList.add(colorClass);
-        },
     unmount: function() {
-        document.removeEventListener('server_counts', this.updateRoomCounts);
-        document.removeEventListener('server_update', this.handleRoomUpdate);
+
     }
     };
     servers_window.start();

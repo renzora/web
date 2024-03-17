@@ -16,7 +16,7 @@ if ($auth) {
     <!-- Window Body -->
     <div class='window_body'>
         <div class='p-3'> <!-- Padding added -->
-        <span class="text-white">In order to connect to a hosted server, you will need a server code.</span>
+        <span class="text-white">In order to connect to a server, you will need a server code.</span>
         <input
         type="text"
         id="server_deets" class='mt-3 light_input shadow appearance-none border rounded text-2xl w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'

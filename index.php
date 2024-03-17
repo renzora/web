@@ -6,7 +6,6 @@
   <title>Renzora</title>
   <link rel="stylesheet" href="assets/css/output.css">
   <script src='assets/js/engine/game.js'></script>
-  <script src='assets/js/engine/scene.js'></script>
   <script src='assets/js/engine/ui.js'></script>
   <script src='assets/js/engine/input.js'></script>
   <script src='assets/js/engine/audio.js'></script>
@@ -17,7 +16,7 @@
   <script src='assets/js/engine/effects.js'></script>
   <script src='assets/js/engine/network.js'></script>
   <script src='assets/js/engine/debug.js'></script>
-  <script src='assets/js/libs/modal.js'></script>
+  <script src='assets/js/engine/modal.js'></script>
 </head>
 
 <body class="flex justify-center items-center"></body>

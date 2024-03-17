@@ -2,13 +2,6 @@ window.modalResolves = window.modalResolves || {};
 
 var ui = {
     notificationCount: 0,
-    loadScene(id) {
-        console.log("clicked room");
-        return new Promise((resolve, reject) => {
-            this.closeModal('servers_window');
-            scene.start(id);
-        });
-    },
     notif: function(message) {
         return new Promise(resolve => {
             let container = document.getElementById('notification');

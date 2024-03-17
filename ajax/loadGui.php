@@ -4,14 +4,6 @@ if($auth) {
 
 ?>
 
-<div id="serverStatus" class="hidden fixed bottom-0 right-0 m-1 z-10">
-    <div class="rounded shadow p-1 bg-black bg-opacity-80">
-        <div class="text-white" style="font-size: 11px;">
-            connected to server <span class="text-blue-500 cursor-pointer" onclick="network.leaveServer();">disconnect</span>
-        </div>
-    </div>
-</div>
-
     <div class='fixed bottom-0 left-0 m-3 z-10 flex items-center'>
 
     <div class="fixed top-1/2 left-0 transform -translate-y-1/2 rounded-r-xl shadow p-3 mt-2 bg-opacity-80 bg-black z-10">
@@ -32,10 +24,6 @@ if($auth) {
     </div>
 
     </div>
-  </div>
-
-  <div class='fixed top-0 right-0 z-10'>
-
   </div>
 
 <?php

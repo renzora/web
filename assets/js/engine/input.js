@@ -19,11 +19,11 @@ var input = {
         document.addEventListener('click', (e) => this.leftClick(e));
         document.addEventListener('dblclick', (e) => this.doubleClick(e));
         document.addEventListener('contextmenu', (e) => this.rightClick(e));
+        window.addEventListener('resize', (e) => game.resizeCanvas(e));
     },
 
 
     loaded: function(e) {
-        console.log("loaded");
         this.init();
         network.init();
     },
@@ -83,7 +83,7 @@ var input = {
     },
 
     mouseWheelScroll: function(e) {
-
+        
     },
 
     leftClick: function(e) {
