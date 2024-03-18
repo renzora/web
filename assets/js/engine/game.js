@@ -113,10 +113,7 @@ var game = {
                         const srcY = Math.floor(this.tileIndex / 150) * 16;
                         game.ctx.drawImage(assets.load('tileset'), srcX, srcY, 16, 16, this.posX * 16, this.posY * 16, 16, 16);
                         
-                        if (this.walkable === 0) {
-                            game.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-                            game.ctx.fillRect(this.posX * 16, this.posY * 16, 16, 16);
-                        }
+
                     }
                 });
             }

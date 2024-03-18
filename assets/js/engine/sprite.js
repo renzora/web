@@ -65,18 +65,30 @@ var sprite = {
     },
 
     update: function() {
-        let moving = Object.keys(this.directions).length > 0;
+        let dx = 0;
+        let dy = 0;
     
-        let proposedX = this.x + (this.directions['right'] ? this.speed : 0) - (this.directions['left'] ? this.speed : 0);
-        let proposedY = this.y + (this.directions['down'] ? this.speed : 0) - (this.directions['up'] ? this.speed : 0);
+        // Adjust movement based on direction flags
+        if (this.directions['right']) dx += 1;
+        if (this.directions['left']) dx -= 1;
+        if (this.directions['down']) dy += 1;
+        if (this.directions['up']) dy -= 1;
     
-        // Prepare for checking collision with dynamic tiles that are not w
+        // Check for diagonal movement and normalize speed
+        if (dx !== 0 && dy !== 0) {
+            dx /= Math.sqrt(2);
+            dy /= Math.sqrt(2);
+        }
+    
+        let proposedX = this.x + dx * this.speed;
+        let proposedY = this.y + dy * this.speed;
+    
+        // Collision detection with dynamic tiles
         let collisionWithDynamic = false;
         if (game.roomData && game.roomData.items) {
             collisionWithDynamic = game.roomData.items.some(roomItem => {
-                // Only consider tiles marked as non-w
                 return roomItem.p.some(position => {
-                    if (position.w === 0) { // Check if the tile is not walkable
+                    if (position.w === 0) { // Non-walkable tile
                         const tileRect = {
                             x: parseInt(position.x, 10) * 16,
                             y: parseInt(position.y, 10) * 16,
@@ -86,28 +98,33 @@ var sprite = {
                         return game.isColliding(
                             {x: proposedX, y: proposedY, width: this.size * this.scale, height: this.size * this.scale},
                             tileRect,
-                            10 * game.zoomLevel
+                            10 * game.zoomLevel // You might adjust collision buffer based on your needs
                         );
                     }
-                    return false; // If the tile is walkable, ignore it
+                    return false; // Walkable tile, ignore
                 });
             });
         }
     
-        // Apply movement if there's no collision detected
-        if (!collisionWithDynamic && moving) {
+        // Apply movement if no collision detected
+        if (!collisionWithDynamic) {
             this.x = Math.max(0, Math.min(proposedX, game.worldWidth - (this.size * this.scale)));
             this.y = Math.max(0, Math.min(proposedY, game.worldHeight - (this.size * this.scale)));
     
-            this.frameCounter += this.animationSpeed;
-            if (this.frameCounter >= 1) {
-                this.currentFrame = (this.currentFrame + 1) % 5;
+            // Update frame for animation if moving
+            if (dx !== 0 || dy !== 0) {
+                this.frameCounter += this.animationSpeed;
+                if (this.frameCounter >= 1) {
+                    this.currentFrame = (this.currentFrame + 1) % 5; // Assuming 5 frames per direction
+                    this.frameCounter = 0;
+                }
+            } else {
+                // Reset animation if not moving
                 this.frameCounter = 0;
+                this.currentFrame = 0;
             }
-        } else if (!moving) {
-            this.frameCounter = 0;
-            this.currentFrame = 0;
         }
-        console.log(this.x, this.y);
+        console.log(this.x, this.y); // Debugging output
     }
+    
 };
