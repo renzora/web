@@ -72,9 +72,8 @@ var sprite = {
     
         // Prepare for checking collision with dynamic tiles that are not w
         let collisionWithDynamic = false;
-        const roomData = assets.load('roomData');
-        if (roomData && roomData.items) {
-            collisionWithDynamic = roomData.items.some(roomItem => {
+        if (game.roomData && game.roomData.items) {
+            collisionWithDynamic = game.roomData.items.some(roomItem => {
                 // Only consider tiles marked as non-w
                 return roomItem.p.some(position => {
                     if (position.w === 0) { // Check if the tile is not walkable
