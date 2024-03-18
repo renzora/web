@@ -27,7 +27,7 @@ var network = {
           ui.modal('auth/index.php', 'auth_window');
       }
 
-      //ui.loadGui();
+      ui.loadGui();
       console.log("Connected to Main renzora server");
       game.init();
   },

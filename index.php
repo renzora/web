@@ -12,7 +12,6 @@
   <script src='assets/js/engine/assets.js'></script>
   <script src='assets/js/engine/sprite.js'></script>
   <script src='assets/js/engine/camera.js'></script>
-  <script src='assets/js/engine/collision.js'></script>
   <script src='assets/js/engine/effects.js'></script>
   <script src='assets/js/engine/network.js'></script>
   <script src='assets/js/engine/debug.js'></script>

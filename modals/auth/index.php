@@ -92,7 +92,6 @@ if(!$auth) {
               console.log(data);
               if(data.message == 'login_complete') {
                 ui.loadGui();
-                ui.loadScene(localStorage.getItem('room'));
                 ui.notif("You are now signed in as " + login_username, 'bottom-center');
                 ui.closeModal("auth_window");
               } else {
