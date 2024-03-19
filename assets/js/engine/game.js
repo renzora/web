@@ -4,7 +4,7 @@ var game = {
     lastTime: 0,
     worldWidth: 480,
     worldHeight: 480,
-    zoomLevel: 6,
+    zoomLevel: 4,
     cameraX: 0,
     cameraY: 0,
     roomData: undefined,
@@ -78,7 +78,11 @@ var game = {
         if (game.roomData && game.roomData.items) {
             collisionDetected = game.roomData.items.some(roomItem => {
                 return roomItem.p.some(position => {
-                    if (position.w === 0) { // Non-walkable tile
+                    // Check if the position defines custom boundaries as an array
+                    if (Array.isArray(position.w) && position.w.length === 4) {
+                        // Directly use the boundary values (N,E,S,W) from the array
+                        const [nOffset, eOffset, sOffset, wOffset] = position.w;
+    
                         const tileRect = {
                             x: parseInt(position.x, 10) * 16,
                             y: parseInt(position.y, 10) * 16,
@@ -91,19 +95,23 @@ var game = {
                             width: sprite.size * sprite.scale,
                             height: sprite.size * sprite.scale
                         };
-                        const adjustedBuffer = 10 * game.zoomLevel / this.zoomLevel * sprite.scale;
-                        // Directly applying the isColliding logic here
-                        return spriteRect.x < tileRect.x + tileRect.width - adjustedBuffer &&
-                               spriteRect.x + spriteRect.width > tileRect.x + adjustedBuffer &&
-                               spriteRect.y < tileRect.y + tileRect.height - adjustedBuffer &&
-                               spriteRect.y + spriteRect.height > tileRect.y + adjustedBuffer;
+    
+                        // Adjust the collision detection logic with the specified offsets
+                        return spriteRect.x < tileRect.x + tileRect.width - eOffset &&
+                               spriteRect.x + spriteRect.width > tileRect.x + wOffset &&
+                               spriteRect.y < tileRect.y + tileRect.height - sOffset &&
+                               spriteRect.y + spriteRect.height > tileRect.y + nOffset;
+                    } else if (position.w === 0) { // Non-walkable tile
+                        // Your existing collision logic here for non-walkable tiles
+                        // This assumes you want to keep the existing logic as a fallback
                     }
-                    return false; // Walkable tile, ignore
+                    return false; // Walkable tile or invalid boundary, ignore
                 });
             });
         }
         return collisionDetected;
     },
+    
     
     render: function() {
         this.ctx.clearRect(0, 0, this.worldWidth, this.worldHeight);
