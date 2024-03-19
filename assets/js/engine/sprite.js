@@ -12,8 +12,8 @@ var sprite = {
     stopping: false,
     isStopping: false,
     movementFrameCounter: 0,
-    deaccelerationThreshold: 60,
-    deaccelerationRate: 0.87,
+    deaccelerationThreshold: 90,
+    deaccelerationRate: 0.88,
     directionMap: {
         'N': 0,
         'NE': 1,
