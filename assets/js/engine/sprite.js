@@ -145,13 +145,12 @@ var sprite = {
             }
         }
     
-        let proposedX = this.x + this.vx;
-        let proposedY = this.y + this.vy;
-    
-        let collisionWithDynamic = this.detectCollision(proposedX, proposedY);
-        if(!collisionWithDynamic) {
-            this.x = proposedX;
-            this.y = proposedY;
+        let x = this.x + this.vx;
+        let y = this.y + this.vy;
+
+        if(!game.collision(x, y)) {
+            this.x = x;
+            this.y = y;
         }
     
         this.x = Math.max(0, Math.min(this.x, game.worldWidth - this.size * this.scale));
@@ -162,30 +161,5 @@ var sprite = {
         if(dx === 0 && dy === 0 && !this.isStopping) {
             this.movementFrameCounter = 0;
         }
-    },
-    
-    detectCollision: function(proposedX, proposedY) {
-        let collisionDetected = false;
-        if(game.roomData && game.roomData.items) {
-            collisionDetected = game.roomData.items.some(roomItem => {
-                return roomItem.p.some(position => {
-                    if(position.w === 0) { // Non-walkable tile
-                        const tileRect = {
-                            x: parseInt(position.x, 10) * 16,
-                            y: parseInt(position.y, 10) * 16,
-                            width: 16,
-                            height: 16
-                        };
-                        return game.isColliding(
-                            {x: proposedX, y: proposedY, width: this.size * this.scale, height: this.size * this.scale},
-                            tileRect,
-                            10 * game.zoomLevel
-                        );
-                    }
-                    return false; // Walkable tile, ignore
-                });
-            });
-        }
-        return collisionDetected;
     }
 };

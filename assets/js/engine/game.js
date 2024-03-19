@@ -73,14 +73,36 @@ var game = {
         }
     },
 
-    isColliding: function(rect1, rect2, baseBuffer = 4) {
-        const adjustedBuffer = baseBuffer / this.zoomLevel * sprite.scale;
-        if (!rect2.w) {
-            return rect1.x < rect2.x + rect2.width - adjustedBuffer &&
-                   rect1.x + rect1.width > rect2.x + adjustedBuffer &&
-                   rect1.y < rect2.y + rect2.height - adjustedBuffer &&
-                   rect1.y + rect1.height > rect2.y + adjustedBuffer;
+    collision: function(proposedX, proposedY) {
+        let collisionDetected = false;
+        if (game.roomData && game.roomData.items) {
+            collisionDetected = game.roomData.items.some(roomItem => {
+                return roomItem.p.some(position => {
+                    if (position.w === 0) { // Non-walkable tile
+                        const tileRect = {
+                            x: parseInt(position.x, 10) * 16,
+                            y: parseInt(position.y, 10) * 16,
+                            width: 16,
+                            height: 16
+                        };
+                        const spriteRect = {
+                            x: proposedX,
+                            y: proposedY,
+                            width: sprite.size * sprite.scale,
+                            height: sprite.size * sprite.scale
+                        };
+                        const adjustedBuffer = 10 * game.zoomLevel / this.zoomLevel * sprite.scale;
+                        // Directly applying the isColliding logic here
+                        return spriteRect.x < tileRect.x + tileRect.width - adjustedBuffer &&
+                               spriteRect.x + spriteRect.width > tileRect.x + adjustedBuffer &&
+                               spriteRect.y < tileRect.y + tileRect.height - adjustedBuffer &&
+                               spriteRect.y + spriteRect.height > tileRect.y + adjustedBuffer;
+                    }
+                    return false; // Walkable tile, ignore
+                });
+            });
         }
+        return collisionDetected;
     },
     
     render: function() {
