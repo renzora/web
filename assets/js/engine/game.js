@@ -4,7 +4,7 @@ var game = {
     lastTime: 0,
     worldWidth: 480,
     worldHeight: 480,
-    zoomLevel: 4,
+    zoomLevel: 5,
     cameraX: 0,
     cameraY: 0,
     roomData: undefined,
@@ -54,7 +54,7 @@ var game = {
         var scaledWindowHeight = window.innerHeight / game.zoomLevel;
         
         // Check if the world dimensions are smaller than the canvas dimensions
-        if (game.worldWidth < scaledWindowWidth || game.worldHeight < scaledWindowHeight) {
+        if(game.worldWidth < scaledWindowWidth || game.worldHeight < scaledWindowHeight) {
             // Calculate the difference and divide by 2 to center
             var xOffset = game.worldWidth < scaledWindowWidth ? (scaledWindowWidth - game.worldWidth) / 2 : 0;
             var yOffset = game.worldHeight < scaledWindowHeight ? (scaledWindowHeight - game.worldHeight) / 2 : 0;
@@ -75,11 +75,10 @@ var game = {
 
     collision: function(proposedX, proposedY) {
         let collisionDetected = false;
-        if (game.roomData && game.roomData.items) {
+        if(game.roomData && game.roomData.items) {
             collisionDetected = game.roomData.items.some(roomItem => {
                 return roomItem.p.some(position => {
-                    // Check if the position defines custom boundaries as an array
-                    if (Array.isArray(position.w) && position.w.length === 4) {
+                    if(Array.isArray(position.w) && position.w.length === 4) {
                         // Directly use the boundary values (N,E,S,W) from the array
                         const [nOffset, eOffset, sOffset, wOffset] = position.w;
     
@@ -96,20 +95,35 @@ var game = {
                             height: sprite.size * sprite.scale
                         };
     
-                        // Adjust the collision detection logic with the specified offsets
                         return spriteRect.x < tileRect.x + tileRect.width - eOffset &&
                                spriteRect.x + spriteRect.width > tileRect.x + wOffset &&
                                spriteRect.y < tileRect.y + tileRect.height - sOffset &&
                                spriteRect.y + spriteRect.height > tileRect.y + nOffset;
-                    } else if (position.w === 0) { // Non-walkable tile
-                        // Your existing collision logic here for non-walkable tiles
-                        // This assumes you want to keep the existing logic as a fallback
                     }
-                    return false; // Walkable tile or invalid boundary, ignore
+                    return false;
                 });
             });
         }
         return collisionDetected;
+    },
+
+    grid: function() {
+        this.ctx.strokeStyle = 'rgba(204, 204, 204, 0.2)';
+        this.ctx.lineWidth = 1;
+    
+        for(var x = 0; x <= this.worldWidth; x += 16) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.worldHeight);
+            this.ctx.stroke();
+        }
+    
+        for(var y = 0; y <= this.worldHeight; y += 16) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.worldWidth, y);
+            this.ctx.stroke();
+        }
     },
     
     
@@ -118,24 +132,28 @@ var game = {
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(this.zoomLevel, this.zoomLevel);
         this.ctx.translate(-Math.round(this.cameraX), -Math.round(this.cameraY));
-    
+        this.grid();
+
         let renderQueue = [];
     
         if(this.roomData && this.roomData.items && this.roomData.items.length > 0) {
             let positionGroups = {};
-    
+
             this.roomData.items.forEach(roomItem => {
                 const itemDef = assets.load('items')[roomItem.id];
                 if(itemDef) {
                     roomItem.p.forEach((position, index) => {
                         if(index < itemDef.layout.length && index < itemDef.tiles.length) {
                             const layout = itemDef.layout[index];
-                            const zValue = layout.z || position.z;
-                
+                            let zValue = Array.isArray(layout.z) ? layout.z[2] : layout.z || position.z;
+
+                            const posX = parseInt(position.x, 10);
+                            const posY = parseInt(position.y, 10);
+
                             renderQueue.push({
                                 tileIndex: itemDef.tiles[index],
-                                posX: parseInt(position.x, 10),
-                                posY: parseInt(position.y, 10),
+                                posX: posX,
+                                posY: posY,
                                 z: zValue,
                                 walkable: position.w,
                                 draw: function() {
@@ -144,33 +162,30 @@ var game = {
                                     game.ctx.drawImage(assets.load('tileset'), srcX, srcY, 16, 16, this.posX * 16, this.posY * 16, 16, 16);
                                 }
                             });
+
+
                         }
                     });
                 }
             });
     
-            // Sort each group by z and then flatten the groups into renderQueue
             Object.values(positionGroups).forEach(group => {
-                group.sort((a, b) => a.z - b.z); // Sort by z within each group
-                // Merge the sorted group back into renderQueue
+                group.sort((a, b) => a.z - b.z);
                 renderQueue = renderQueue.concat(group);
             });
 
-            // Add the sprite to the renderQueue with a z-index of 1
             renderQueue.push({
-                z: 1, // Sprite's z-index
+                z: 1,
                 draw: function() {
                     sprite.draw();
                 }
             });
         
-            // Sort the entire renderQueue by z-index
             renderQueue.sort((a, b) => a.z - b.z);
 
             renderQueue.forEach(tile => {
                 tile.draw();
             });
-            
         }
     
         this.ctx.imageSmoothingEnabled = false;

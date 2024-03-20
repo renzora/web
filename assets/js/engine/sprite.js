@@ -103,7 +103,6 @@ var sprite = {
             }
             this.frameCounter = 0;
         }
-        console.log(this.currentFrame);
         
     },
 
