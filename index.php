@@ -6,6 +6,7 @@
   <title>Renzora</title>
   <link rel="stylesheet" href="assets/css/output.css">
   <script src='assets/js/engine/game.js'></script>
+  <script src='assets/js/engine/camera.js'></script>
   <script src='assets/js/engine/ui.js'></script>
   <script src='assets/js/engine/input.js'></script>
   <script src='assets/js/engine/audio.js'></script>

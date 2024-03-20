@@ -3,7 +3,7 @@ var sprite = {
     y: 250,
     size: 32,
     scale: 0.7,
-    speed: 1.5,
+    speed: 90,
     currentFrame: 11,
     direction: 'S',
     animationSpeed: 0.2,
@@ -12,8 +12,8 @@ var sprite = {
     stopping: false,
     isStopping: false,
     movementFrameCounter: 0,
-    deaccelerationThreshold: 90,
-    deaccelerationRate: 0.88,
+    deaccelerationThreshold: 2,
+    deaccelerationRate: 0.0001,
     directionMap: {
         'N': 0,
         'NE': 1,
@@ -107,16 +107,26 @@ var sprite = {
     },
 
     update: function() {
+        let deltatime = game.deltaTime / 1000;
+    
         let dx = 0;
         let dy = 0;
     
-        if(this.directions['right']) dx += this.speed;
-        if(this.directions['left']) dx -= this.speed;
-        if(this.directions['down']) dy += this.speed;
-        if(this.directions['up']) dy -= this.speed;
+        if(this.directions['right']) dx += this.speed * deltatime;
+        if(this.directions['left']) dx -= this.speed * deltatime;
+        if(this.directions['down']) dy += this.speed * deltatime;
+        if(this.directions['up']) dy -= this.speed * deltatime;
     
+        // Normalize diagonal speed
+        if(dx !== 0 && dy !== 0) {
+            const norm = Math.sqrt(dx * dx + dy * dy);
+            dx = (dx / norm) * this.speed * deltatime;
+            dy = (dy / norm) * this.speed * deltatime;
+        }
+    
+        // Apply deceleration
         if(dx !== 0 || dy !== 0) {
-            this.movementFrameCounter++;
+            this.movementFrameCounter += deltatime;
             this.isStopping = false;
         } else {
             if(this.movementFrameCounter > this.deaccelerationThreshold) {
@@ -124,17 +134,12 @@ var sprite = {
             }
         }
     
-        if(dx !== 0 && dy !== 0) {
-            dx /= Math.sqrt(2);
-            dy /= Math.sqrt(2);
-        }
-    
         if(!this.isStopping) {
             this.vx = dx;
             this.vy = dy;
         } else {
-            this.vx *= this.deaccelerationRate;
-            this.vy *= this.deaccelerationRate;
+            this.vx *= Math.pow(this.deaccelerationRate, deltatime);
+            this.vy *= Math.pow(this.deaccelerationRate, deltatime);
     
             if(Math.abs(this.vx) < 0.01 && Math.abs(this.vy) < 0.01) {
                 this.vx = 0;
@@ -144,14 +149,16 @@ var sprite = {
             }
         }
     
-        let x = this.x + this.vx;
-        let y = this.y + this.vy;
-
-        if(!game.collision(x, y)) {
-            this.x = x;
-            this.y = y;
+        let newX = this.x + this.vx;
+        let newY = this.y + this.vy;
+    
+        // Collision check before applying new position
+        if(!game.collision(newX, newY)) {
+            this.x = newX;
+            this.y = newY;
         }
     
+        // Ensure sprite stays within world bounds
         this.x = Math.max(0, Math.min(this.x, game.worldWidth - this.size * this.scale));
         this.y = Math.max(0, Math.min(this.y, game.worldHeight - this.size * this.scale));
     
