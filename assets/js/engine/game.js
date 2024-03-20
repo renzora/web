@@ -54,7 +54,7 @@ var game = {
         var scaledWindowHeight = window.innerHeight / game.zoomLevel;
         
         // Check if the world dimensions are smaller than the canvas dimensions
-        if(game.worldWidth < scaledWindowWidth || game.worldHeight < scaledWindowHeight) {
+        if (game.worldWidth < scaledWindowWidth || game.worldHeight < scaledWindowHeight) {
             // Calculate the difference and divide by 2 to center
             var xOffset = game.worldWidth < scaledWindowWidth ? (scaledWindowWidth - game.worldWidth) / 2 : 0;
             var yOffset = game.worldHeight < scaledWindowHeight ? (scaledWindowHeight - game.worldHeight) / 2 : 0;
@@ -77,14 +77,16 @@ var game = {
         let collisionDetected = false;
         if(game.roomData && game.roomData.items) {
             collisionDetected = game.roomData.items.some(roomItem => {
-                return roomItem.p.some(position => {
-                    if(Array.isArray(position.w) && position.w.length === 4) {
-                        // Directly use the boundary values (N,E,S,W) from the array
-                        const [nOffset, eOffset, sOffset, wOffset] = position.w;
+                const itemTiles = assets.load('items')[roomItem.id];
+                if (!itemTiles) return false;
     
+                return roomItem.p.some((position, index) => {
+                    const tile = itemTiles[index];
+                    if(tile && Array.isArray(tile.w) && tile.w.length === 4) {
+                        const [nOffset, eOffset, sOffset, wOffset] = tile.w;
                         const tileRect = {
-                            x: parseInt(position.x, 10) * 16,
-                            y: parseInt(position.y, 10) * 16,
+                            x: parseInt(position.x, 10) * 16, // Absolute X position
+                            y: parseInt(position.y, 10) * 16, // Absolute Y position
                             width: 16,
                             height: 16
                         };
@@ -128,65 +130,51 @@ var game = {
     
     
     render: function() {
-        this.ctx.clearRect(0, 0, this.worldWidth, this.worldHeight);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(this.zoomLevel, this.zoomLevel);
         this.ctx.translate(-Math.round(this.cameraX), -Math.round(this.cameraY));
         this.grid();
-
+    
         let renderQueue = [];
     
-        if(this.roomData && this.roomData.items && this.roomData.items.length > 0) {
-            let positionGroups = {};
-
-            this.roomData.items.forEach(roomItem => {
-                const itemDef = assets.load('items')[roomItem.id];
-                if(itemDef) {
-                    roomItem.p.forEach((position, index) => {
-                        if(index < itemDef.layout.length && index < itemDef.tiles.length) {
-                            const layout = itemDef.layout[index];
-                            let zValue = Array.isArray(layout.z) ? layout.z[2] : layout.z || position.z;
-
-                            const posX = parseInt(position.x, 10);
-                            const posY = parseInt(position.y, 10);
-
-                            renderQueue.push({
-                                tileIndex: itemDef.tiles[index],
-                                posX: posX,
-                                posY: posY,
-                                z: zValue,
-                                walkable: position.w,
-                                draw: function() {
-                                    const srcX = (this.tileIndex % 150) * 16;
-                                    const srcY = Math.floor(this.tileIndex / 150) * 16;
-                                    game.ctx.drawImage(assets.load('tileset'), srcX, srcY, 16, 16, this.posX * 16, this.posY * 16, 16, 16);
-                                }
-                            });
-
-
-                        }
-                    });
-                }
-            });
+        // Assuming roomData.items is properly loaded and structured
+        this.roomData.items.forEach(roomItem => {
+            const itemTiles = assets.load('items')[roomItem.id];
+            if (itemTiles) {
+                roomItem.p.forEach((position, index) => {
+                    const tile = itemTiles[index];
+                    if(tile) {
+                        const posX = parseInt(position.x, 10) * 16; // Absolute X position
+                        const posY = parseInt(position.y, 10) * 16; // Absolute Y position
     
-            Object.values(positionGroups).forEach(group => {
-                group.sort((a, b) => a.z - b.z);
-                renderQueue = renderQueue.concat(group);
-            });
-
-            renderQueue.push({
-                z: 1,
-                draw: function() {
-                    sprite.draw();
-                }
-            });
-        
-            renderQueue.sort((a, b) => a.z - b.z);
-
-            renderQueue.forEach(tile => {
-                tile.draw();
-            });
-        }
+                        renderQueue.push({
+                            tileIndex: tile.t,
+                            posX: posX,
+                            posY: posY,
+                            z: tile.z, // Use the tile's z-index
+                            draw: function() {
+                                const srcX = (this.tileIndex % 150) * 16;
+                                const srcY = Math.floor(this.tileIndex / 150) * 16;
+                                game.ctx.drawImage(assets.load('tileset'), srcX, srcY, 16, 16, this.posX, this.posY, 16, 16);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    
+        // Sprite rendering logic remains unchanged
+        renderQueue.push({
+            z: 1,
+            draw: function() {
+                sprite.draw();
+            }
+        });
+    
+        // Sort and draw the render queue
+        renderQueue.sort((a, b) => a.z - b.z);
+        renderQueue.forEach(item => item.draw());
     
         this.ctx.imageSmoothingEnabled = false;
     }

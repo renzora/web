@@ -1,6 +1,6 @@
 var sprite = {
     x: 180,
-    y: 200,
+    y: 250,
     size: 32,
     scale: 0.7,
     speed: 1.5,
@@ -34,8 +34,8 @@ var sprite = {
         let frameColumn = Math.floor(this.currentFrame);
         let sx = frameColumn * this.size;
         let sy = directionRow * this.size;
-        let shadowWidth = this.size * this.scale * 0.3;
-        let shadowHeight = this.size * this.scale * 0.18;
+        let shadowWidth = this.size * this.scale * 0.22;
+        let shadowHeight = this.size * this.scale * 0.15;
     
         game.ctx.save();
         game.ctx.translate(this.x, this.y);
