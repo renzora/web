@@ -47,13 +47,9 @@ if ($auth) {
 
       var edit_mode_window = {
         start: function() {
-          ren.hideUi();
-          ren.hideSprite();
-          ren.disableSpriteMovement();
-          scene.isEditMode = true;
-          scene.currentMode = null;
+          editor.isEditMode = true;
+          editor.currentMode = null;
           edit_mode_window.changeMode(Modes.SELECT);
-          closeModal('chat_window');
 
           Object.keys(modeButtons).forEach(mode => {
         var handler = () => this.changeMode(mode);
@@ -62,11 +58,8 @@ if ($auth) {
       });
         },
         unmount: function() {
-          ren.showUi();
-          ren.showSprite();
-          ren.enableSpriteMovement();
-          scene.isEditMode = false;
-          scene.currentMode = null;
+          editor.isEditMode = false;
+          editor.currentMode = null;
 
           Object.keys(modeButtons).forEach(mode => {
         var handler = modeChangeHandlers[mode];
@@ -88,7 +81,7 @@ if ($auth) {
         modeButtons[newMode].style.color = '#276b49'; // Change text color if needed
       }
 
-      scene.currentMode = newMode;
+      editor.currentMode = newMode;
     }
       }
 

@@ -14,6 +14,7 @@
   <script src='assets/js/engine/sprite.js'></script>
   <script src='assets/js/engine/effects.js'></script>
   <script src='assets/js/engine/network.js'></script>
+  <script src='assets/js/engine/editor.js'></script>
   <script src='assets/js/engine/debug.js'></script>
   <script src='assets/js/engine/modal.js'></script>
 </head>

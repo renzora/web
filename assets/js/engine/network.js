@@ -28,6 +28,7 @@ var network = {
       }
 
       ui.loadGui();
+      ui.modal('editMode/index.php','edit_mode_window');
       console.log("Connected to Main renzora server");
       game.init();
   },
