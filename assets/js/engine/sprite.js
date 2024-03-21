@@ -4,7 +4,7 @@ var sprite = {
     size: 32,
     scale: 0.7,
     speed: 90,
-    currentFrame: 11,
+    currentFrame: 1,
     direction: 'S',
     animationSpeed: 0.2,
     frameCounter: 0,
@@ -13,7 +13,7 @@ var sprite = {
     isStopping: false,
     movementFrameCounter: 0,
     deaccelerationThreshold: 2,
-    deaccelerationRate: 0.0001,
+    deaccelerationRate: 0.001,
     directionMap: {
         'N': 0,
         'NE': 1,
@@ -77,6 +77,7 @@ var sprite = {
 
     animate: function() {
         if(this.moving) {
+            console.log("sprite moving", this.currentFrame);
             this.frameCounter += this.animationSpeed;
             if(this.stopping) {
                 if(this.currentFrame < 9 || this.currentFrame > 11) {

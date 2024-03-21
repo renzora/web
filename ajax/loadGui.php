@@ -4,6 +4,11 @@ if($auth) {
 
 ?>
 
+<div class='fixed top-0 right-0 mt-2 z-10 flex items-center'>
+<button class="green_button p-3 text-xs rounded shadow float-right mr-2" onclick="ui.modal('gameEditor','game_editor_window');">Game Editor</button>
+
+</div>
+
     <div class='fixed bottom-0 left-0 m-3 z-10 flex items-center'>
 
     <div class="fixed top-1/2 left-0 transform -translate-y-1/2 rounded-r-xl shadow p-3 mt-2 bg-opacity-80 bg-black z-10">

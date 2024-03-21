@@ -6,7 +6,7 @@ var game = {
     deltaTime: 0,
     worldWidth: 480,
     worldHeight: 480,
-    zoomLevel: 5,
+    zoomLevel: 6,
     roomData: undefined,
 
     init: function () {
@@ -16,6 +16,7 @@ var game = {
             { name: 'tileset', path: 'img/sprites/items.png' },
             { name: 'items', path: 'json/items.json' },
             { name: 'roomData', path: 'json/roomData.json' },
+            { name: 'test', path: 'img/sprites/test.png' },
         ], () => {
             console.log("All assets loaded");
             this.canvas = document.createElement('canvas');
@@ -34,15 +35,13 @@ var game = {
     },
 
     loop: function(timestamp) {
-        this.deltaTime = timestamp - this.lastTime; // Calculate the delta time based on the current timestamp
-        this.lastTime = timestamp; // Update lastTime to the current timestamp for the next frame
+        this.deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
     
         sprite.update();
         camera.update();
         this.render();
-    
         requestAnimationFrame(this.loop.bind(this));
-        console.log(this.deltaTime);
     },
 
     collision: function(x, y) {
