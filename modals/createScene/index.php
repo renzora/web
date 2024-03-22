@@ -29,7 +29,7 @@ if ($auth) {
                     ?>
                 </select>
                 <div class="text-center">
-                    <button class="btn btn-lg btn-light mt-2" onclick="ui.modal('world/index.php', 'world_window');">Back</button>
+                    <button class="btn btn-lg btn-light mt-2" onclick="modal.load('world');">Back</button>
                     <button class="btn btn-lg border border-success btn-success shadow mt-2" onclick="createroom_window.createRoom()"><i class="fa-solid fa-check"></i> Create Room</button>
                 </div>
             </div>
@@ -39,7 +39,7 @@ if ($auth) {
     <script>
         var createroom_window = {
             start: function() {
-                ui.closeModal('world_window');
+                modal.close('world_window');
             },
             unmount: function() {
                 console.log('unmounted');
@@ -52,13 +52,13 @@ if ($auth) {
 
                 console.log(createroom_window_name, createroom_window_description);
 
-                load({
+                ui.ajax({
                     method: 'POST',
                     data: 'name=' + encodeURIComponent(createroom_window_name) + '&description=' + encodeURIComponent(createroom_window_description) + '&category=' + encodeURIComponent(createroom_window_category),
                     url: 'modals/createroom/ajax/save.php',
                     success: function(data) {
                         console.log(data);
-                        ui.closeModal('createroom_window');
+                        modal.close('createroom_window');
                         ui.loadScene(data);
                     }
                 });

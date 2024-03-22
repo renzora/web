@@ -1,144 +1,212 @@
-class Draggable {
-  static modals = [];
-  static baseZIndex;
+window.modalResolves = window.modalResolves || {};
 
-  constructor(selector, options) {
-    this.element = document.querySelector(selector);
-    if (!this.element) {
-      console.error(`No element found for selector: ${selector}`);
-      return;
+var modal = {
+  modals: [],
+  baseZIndex: null,
+  init: function(selector, options) {
+    const element = document.querySelector(selector);
+    if (!element) {
+        console.error(`No element found for selector: ${selector}`);
+        return;
     }
 
-    this.options = options;
-
-    // Initialize baseZIndex the first time an instance is created
-    if (Draggable.modals.length === 0) {
-      Draggable.baseZIndex = Draggable.topZIndex() + 1;
+    if (this.modals.length === 0) {
+        this.baseZIndex = this.topZIndex() + 1;
     }
 
-    // Initialize draggable functionality
-    this.initDraggable();
+    this.initDraggable(element, options);
+    const highestZIndex = this.baseZIndex + this.modals.length;
+    element.style.zIndex = highestZIndex.toString();
+    this.modals.push(element);
+    element.addEventListener('click', () => this.front(element));
+},
 
-    // Assign z-index for the new modal
-    const highestZIndex = Draggable.baseZIndex + Draggable.modals.length;
-    this.element.style.zIndex = highestZIndex.toString();
+front: function(element) {
+    this.modals = this.modals.filter(modal => modal !== element);
+    this.modals.push(element);
 
-    // Add this modal to the array of modals
-    Draggable.modals.push(this);
-
-    // Set up event listener to bring this modal to the front when clicked
-    this.element.addEventListener('click', () => this.bringToFront());
-  }
-  
-  bringToFront() {
-    // Move this modal to the end of the list
-    Draggable.modals = Draggable.modals.filter(modal => modal !== this);
-    Draggable.modals.push(this);
-  
-    // Reassign z-index for all modals
-    Draggable.modals.forEach((modal, index) => {
-      modal.element.style.zIndex = (Draggable.baseZIndex + index).toString();
+    this.modals.forEach((modal, index) => {
+        modal.style.zIndex = (this.baseZIndex + index).toString();
     });
-  }
+},
 
-    centerElement() {
-        if(this.element.offsetWidth === 0 || this.element.offsetHeight === 0) {
-            window.requestAnimationFrame(this.centerElement.bind(this));
-            return;
-        }
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const rect = this.element.getBoundingClientRect();
-        const centerX = (viewportWidth - rect.width) / 2;
-        const centerY = (viewportHeight - rect.height) / 2;
-      
-        this.element.style.position = 'absolute';
-        this.element.style.left = `${centerX}px`;
-        this.element.style.top = `${centerY}px`;
-    }
-  
-    initDraggable() {
-        let isDragging = false;
-        let originalX, originalY, translateX = 0, translateY = 0, mouseX, mouseY;
-  
-        const onMouseDown = (e) => {
-        if(e.target.closest('.window_body')) {
+initDraggable: function(element, options) {
+    let isDragging = false;
+    let originalX, originalY, mouseX, mouseY;
+
+    const onMouseDown = (e) => {
+        if (e.target.closest('.window_body') || e.target.closest('.resize-handle')) {
             return;
         }
 
-        if (e.target.closest('.resize-handle')) {
-          return;
-      }
-        
         isDragging = true;
-        originalX = this.element.offsetLeft;
-        originalY = this.element.offsetTop;
-    
+        originalX = element.offsetLeft;
+        originalY = element.offsetTop;
+
         mouseX = e.clientX;
         mouseY = e.clientY;
-        document.onselectstart = function() { return false; };
+
+        if (options && typeof options.start === 'function') {
+            options.start.call(element, e);
+        }
+
+        document.onselectstart = () => false;
         document.body.style.userSelect = 'none';
-        this.bringToFront();
-    
-        if(this.options.stack) {
-            this.element.style.zIndex = this.options.stack();
-        }
-        if(this.options.start) {
-            this.options.start.call(this.element, e);
-        }
+        this.front(element);
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     };
-  
+
     const onMouseMove = (e) => {
-        if(!isDragging) return;
-  
-        let dx = e.clientX - mouseX;
-        let dy = e.clientY - mouseY;
+        if (!isDragging) return;
+    
+        const dx = e.clientX - mouseX;
+        const dy = e.clientY - mouseY;
+    
         let newLeft = originalX + dx;
         let newTop = originalY + dy;
-  
-        const windowBoundaries = {
-            left: window.scrollX,
-            top: window.scrollY,
-            right: window.scrollX + window.innerWidth,
-            bottom: window.scrollY + window.innerHeight
-        };
-  
-        const rect = this.element.getBoundingClientRect();
-  
-        newLeft = Math.max(windowBoundaries.left, Math.min(newLeft, windowBoundaries.right - rect.width));
-        newTop = Math.max(windowBoundaries.top, Math.min(newTop, windowBoundaries.bottom - rect.height));
-  
-        this.element.style.left = `${newLeft}px`;
-        this.element.style.top = `${newTop}px`;
-  
-        if(this.options.drag) {
-            this.options.drag.call(this.element, e);
+    
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const modalRect = element.getBoundingClientRect();
+    
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft + modalRect.width > windowWidth) newLeft = windowWidth - modalRect.width;
+        if (newTop + modalRect.height > windowHeight) newTop = windowHeight - modalRect.height;
+    
+        element.style.left = `${newLeft}px`;
+        element.style.top = `${newTop}px`;
+    
+        if (options && typeof options.drag === 'function') {
+            options.drag.call(element, e);
         }
     };
-  
+
     const onMouseUp = (e) => {
+        if (!isDragging) return;
         isDragging = false;
+
         document.onselectstart = null;
         document.body.style.userSelect = '';
+
+        if (options && typeof options.stop === 'function') {
+            options.stop.call(element, e);
+        }
+
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
-        if(this.options.stop) {
-          this.options.stop.call(this.element, e);
-        }
-      };
-  
-      this.element.addEventListener('mousedown', onMouseDown);
-    }
+    };
 
-    static topZIndex() {
-      const highestZIndex = Array.from(document.querySelectorAll('*'))
+    element.addEventListener('mousedown', onMouseDown);
+},
+
+load: function(page, window_name) {
+
+  if (!page.includes('/')) {
+      page += '/index.php';
+  }
+
+  if (!window_name) {
+      const pageName = page.split('/')[0];
+      window_name = `${pageName}_window`;
+  }
+
+  return new Promise((resolve, reject) => {
+      let existingModal = document.querySelector("[data-window='" + window_name + "']");
+      if (existingModal) {
+          modal.show(window_name);
+          modal.front(existingModal);
+      } else {
+          ui.ajax({
+              url: 'modals/' + page,
+              method: 'GET',
+              success: (data) => {
+                  ui.html(document.body, data, 'append');
+
+                  modal.init("[data-window='" + window_name + "']", {
+                      start: function() {
+                          this.classList.add('dragging');
+                      },
+                      drag: function() {
+                      },
+                      stop: function() {
+                          this.classList.remove('dragging');
+                      }
+                  });
+
+                  window.modalResolves[window_name] = resolve;
+              }
+          });
+      }
+  });
+},
+
+topZIndex: function() {
+    const highestZIndex = Array.from(document.querySelectorAll('*'))
         .map(el => parseFloat(window.getComputedStyle(el).zIndex))
         .filter(zIndex => !isNaN(zIndex))
         .reduce((max, zIndex) => Math.max(max, zIndex), 0);
-    
-      return highestZIndex;
-    }
 
+    return highestZIndex;
+},
+show(modalId) {
+  var modal = document.querySelector("[data-window='" + modalId + "']");
+  if(modal && modal.style.display === 'none') {
+      modal.style.display = 'block';
   }
+},
+
+hide: function(modalId) {
+  var modal = document.querySelector("[data-window='" + modalId + "']");
+  if(modal) {
+    modal.style.display = 'none';
+  }
+},
+
+exists: function(modalId) {
+  var modal = document.querySelector("[data-window='" + modalId + "']");
+  return modal !== null;
+},
+
+close: function(id) {
+  var modalElement = document.querySelector("[data-window='" + id + "']");
+  if(modalElement) {
+      modalElement.remove();
+      ui.unmount(id);
+
+      if(window.modalResolves && window.modalResolves[id]) {
+          console.log("resolving and removing", window.modalResolves[id]);
+          window.modalResolves[id]();
+          delete window.modalResolves[id];
+      }
+  }
+},
+
+showAll: function() {
+  var modals = document.querySelectorAll("[data-window]");
+  modals.forEach(function(modal) {
+      modal.style.display = 'block';
+  });
+},
+hideAll: function() {
+  var modals = document.querySelectorAll("[data-window]");
+  modals.forEach(function(modal) {
+      modal.style.display = 'none';
+  });
+},
+closeAll: function() {
+  var windows = document.querySelectorAll('[data-window]');
+  windows.forEach(function(windowElement) {
+      var id = windowElement.getAttribute('data-window');
+      windowElement.remove();
+      ui.unmount(id);
+  });
+},
+closest: function(element) {
+  while(element && !element.dataset.window) {
+      element = element.parentElement;
+  }
+  return element ? element.dataset.window : null;
+}
+}

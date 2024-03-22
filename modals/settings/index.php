@@ -18,7 +18,7 @@ if($auth) {
   <input type="range" id="volumeControl" class="slider-thumb w-full h-2 rounded-lg cursor-pointer" min="0" max="1" step="0.01" value="0.5">
 </div>
 
-      <button data-close onclick='ui.modal("auth/signout.php", "signout_window");'
+      <button data-close onclick='modal.load("auth/signout.php", "signout_window");'
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full">
         Sign Out
       </button>

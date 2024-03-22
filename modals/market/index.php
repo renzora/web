@@ -26,7 +26,7 @@ if ($auth) {
           <?php echo number_format($user_coins); ?> Coins
         </div>
 
-        <div onclick="ui.modal('purchase/index.php', 'purchase_window');" class="bg-lime-600 pointer text-white p-2 rounded mb-3">
+        <div onclick="modal.load('purchase');" class="bg-lime-600 pointer text-white p-2 rounded mb-3">
           Buy More Coins
         </div>
 
@@ -64,7 +64,7 @@ if ($auth) {
     var market_window = {
       load_items: function(id) {
         console.log('clicked on ' + id);
-        ui.load({
+        ui.ajax({
           url: 'modals/market/ajax/items.php',
           data: 'id=' + id,
           success: function(data) {
@@ -80,7 +80,7 @@ if ($auth) {
       },
       load_profile: function(id) {
         console.log('clicked on ' + id);
-        ui.load({
+        ui.ajax({
           url: 'modals/market/ajax/items.php',
           data: 'item_id=' + id,
           success: function(data) {

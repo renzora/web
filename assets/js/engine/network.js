@@ -24,11 +24,11 @@ var network = {
 
   open: function(e) {
       if(!this.getToken('renaccount')) {
-          ui.modal('auth');
+          modal.load('auth');
       }
 
-      ui.modal('ui');
-      ui.modal('editMode/index.php','edit_mode_window');
+      modal.load('ui');
+      modal.load('editMode/index.php','edit_mode_window');
       console.log("Connected to Main renzora server");
       game.init();
   },
@@ -57,8 +57,8 @@ send: function(message) {
   },
 
   close: function(e) {
-      ui.closeAllModals();
-      ui.modal("servers/errors/mainServer.php", "error_window");
+      modal.closeAll();
+      modal.load("servers/errors/mainServer.php", "error_window");
   },
 
   getToken: function(name) {

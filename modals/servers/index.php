@@ -66,7 +66,7 @@ if ($auth) {
         search: function() {
             var servers_window_search = document.getElementById('servers_window_search').value;
             var servers_window_category = document.getElementById('servers_window_category').getAttribute('data-selected');
-            ui.load({
+            ui.ajax({
                 url: 'modals/servers/ajax/search.php',
                 data: 'search=' + encodeURIComponent(servers_window_search) + '&category=' + encodeURIComponent(servers_window_category),
                 success: function(data) {
@@ -76,12 +76,12 @@ if ($auth) {
             });
         },
         createServerCallback:function() {
-            ui.modal('servers/create.php', 'servercreate_window');
-            ui.hideModal('servers_window');
+            modal.load('servers/create.php', 'servercreate_window');
+            modal.hide('servers_window');
         },
         joinServerCallback:function() {
-            ui.modal('servers/join.php', 'serverjoin_window');
-            ui.hideModal('servers_window');
+            modal.load('servers/join.php', 'serverjoin_window');
+            modal.hide('servers_window');
         },
 
         category_change: function(event) {

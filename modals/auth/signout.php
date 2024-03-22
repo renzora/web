@@ -35,25 +35,25 @@ if($auth) {
       var signout_window = {
         signout: function() {
 
-          ui.load({
+          ui.ajax({
               method: 'POST',
               url: 'modals/auth/ajax/signout_ajax.php',
               success: function(data) {
                 ui.notif("You are now signed out. Please come back again soon :)", 'bottom-center');
-                ui.modal('ui');
-                ui.modal('auth');
-                ui.closeModal('signout_window');
+                modal.load('ui');
+                modal.load('auth');
+                modal.close('signout_window');
               }
             });
 
         },
         confirm: function() {
           signout_window.signout();
-          ui.closeAllModals();
+          modal.closeAll();
         },
         cancel: function() {
-          ui.closeModal('signout_window');
-          ui.modal('settings');
+          modal.close('signout_window');
+          modal.load('settings');
         }
       }
     </script>

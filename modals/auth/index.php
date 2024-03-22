@@ -83,7 +83,7 @@ if(!$auth) {
           ui.modal('auth/error.php?code=1', 'auth_error_window');
         } else {
 
-          ui.load({
+          ui.ajax({
             outputType: 'json',
             method: 'POST',
             url: 'modals/auth/ajax/login_ajax.php',
@@ -91,11 +91,11 @@ if(!$auth) {
             success: function(data) {
               console.log(data);
               if(data.message == 'login_complete') {
-                ui.modal('ui');
+                modal.load('ui');
                 ui.notif("You are now signed in as " + login_username, 'bottom-center');
-                ui.closeModal("auth_window");
+                modal.close("auth_window");
               } else {
-                ui.modal('auth/error.php?code=' + data.message, 'auth_error_window');
+                modal.load('auth/error.php?code=' + data.message, 'auth_error_window');
               }
             },
             error: function(data) {
@@ -110,9 +110,9 @@ if(!$auth) {
         var register_email = document.getElementById('register_email').value;
 
           if(register_username == '' || register_password == '' || register_email == '') {
-            ui.modal('auth/error.php?code=1', 'auth_error_window');
+            modal.load('auth/error.php?code=1', 'auth_error_window');
           } else {
-            ui.load({
+            ui.ajax({
               method: 'POST',
               url: 'modals/auth/ajax/register_ajax.php',
               data: 'register_username=' + register_username + '&register_password=' + register_password + '&register_email=' + register_email,
@@ -120,10 +120,10 @@ if(!$auth) {
                 console.log(data);
                 if(data == 'registration_complete') {
                   ui.notif("Welcome to Renzora, " + register_username + "!");
-                  ui.closeModal("auth_window");
-                  ui.modal('ui');
+                  modal.close("auth_window");
+                  modal.load('ui');
                 } else {
-                  ui.modal('auth/error.php?code=' + data.message, 'auth_error_window');
+                  modal.load('auth/error.php?code=' + data.message, 'auth_error_window');
                 }
             }
           });

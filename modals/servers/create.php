@@ -60,13 +60,13 @@ if (currentStepId == 1) {
 
     // Show error modal if server IP is not provided and prevent further execution
     if (!this.data.serverIp) {
-        ui.modal('servers/errors/createServerError.php?code=no_ip', 'createServerError_window');
+        modal.load('servers/errors/createServerError.php?code=no_ip', 'createServerError_window');
         return; // Prevent transitioning to the next step
     }
 
     return;
 } else if (currentStepId == 3) {
-    ui.load({
+    ui.ajax({
                     dataType: 'json'
                     url: 'modals/servers/ajax/createServer.php',
                     method: 'POST',
@@ -101,7 +101,7 @@ document.getElementById('step' + nextStepId).style.display = 'block';
 
     },
     unmount: function() {
-        ui.showModal('servers_window');
+        modal.show('servers_window');
     }
 }
 </script>

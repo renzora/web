@@ -28,21 +28,21 @@ if($auth) {
       var words = prompt.split(' ');
 
       if(words[0] === 'load') {
-        ui.modal(words[1]);
+        modal.load(words[1]);
       } else if(words[0] === 'debug') {
-        ui.modal('debug');
+        modal.load('debug');
       } else if(prompt === 'closeAll') {
-        ui.closeAllModals();
-        ui.modal('mishell');
+        modal.closeAll();
+        modal.load('mishell');
       } else if(words[0] === 'close') {
-        ui.closeModal(words[1] + '_window');
+        modal.close(words[1] + '_window');
       } else if(words[0] === 'reload') {
-        ui.closeModal(words[1] + '_window');
-        ui.modal(words[1]);
+        modal.close(words[1] + '_window');
+        modal.load(words[1]);
       } else if(prompt === 'new room') {
-        ui.modal('createScene')
+        modal.load('createScene')
       } else if(words[0] === 'quit') {
-        ui.closeModal('mishell_window');
+        modal.close('mishell_window');
       }
 
       mishellPrompt.value = '';

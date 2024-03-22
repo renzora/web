@@ -19,7 +19,7 @@
     var serverNotFound_window = {
 
       unmount: function() {
-        ui.showModal('serverjoin_window');
+        modal.show('serverjoin_window');
       }
     };
   

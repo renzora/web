@@ -19,7 +19,7 @@
     var servertimeout_window = {
 
       unmount: function() {
-        ui.showModal('servers_window');
+        modal.show('servers_window');
       }
     };
   

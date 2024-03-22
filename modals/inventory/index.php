@@ -26,6 +26,7 @@ if ($auth) {
 
         }
       }
+      inventory_window.start();
     </script>
 
     <div class='resize-handle'></div>

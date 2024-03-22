@@ -90,8 +90,8 @@ var input = {
         console.log("left button clicked");
         if(e.target.matches('[data-close], [data-esc]')) {
             console.log("data close clicked");
-            var parent = ui.closestDataWindow(e.target);
-            ui.closeModal(parent);
+            var parent = modal.closest(e.target);
+            modal.close(parent);
           }
     },
     

@@ -35,12 +35,12 @@ if ($auth) {
     <script>
     var serverjoin_window = {
         start: function() {
-            ui.hideModal('servers_window');
+            modal.hide('servers_window');
             document.getElementById('server_deets').focus();
         },
         joinServer: function() {
             var code = document.getElementById('server_deets').value;
-            ui.load({
+            ui.ajax({
                 outputType: 'json',
                 url: 'modals/servers/ajax/serverCode.php',
                 method: 'GET',
@@ -50,8 +50,8 @@ if ($auth) {
                     if(data.message == 'server_found') {
                         network.connectToGameServer(data.uno, data.dos)
                     } else {
-                        ui.hideModal('serverjoin_window');
-                        ui.modal('errors/serverNotFound.php', 'serverNotFound_window');
+                        modal.hide('serverjoin_window');
+                        modal.load('errors/serverNotFound.php', 'serverNotFound_window');
                     }
                     document.getElementById('server_deets').value = '';
                     document.getElementById('server_deets').focus();
@@ -61,7 +61,7 @@ if ($auth) {
             });
         },
         unmount: function() {
-            ui.showModal('servers_window');
+            modal.show('servers_window');
         }
     };
     serverjoin_window.start();

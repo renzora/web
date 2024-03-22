@@ -1,5 +1,3 @@
-window.modalResolves = window.modalResolves || {};
-
 var ui = {
     notificationCount: 0,
     notif: function(message) {
@@ -32,110 +30,6 @@ var ui = {
                     resolve();
                 }, 1000);
             }, 3000);
-        });
-    },
-    closestDataWindow: function(element) {
-        while(element && !element.dataset.window) {
-            element = element.parentElement;
-        }
-        return element ? element.dataset.window : null;
-    },  
-    modal: function(page, window_name) {
-        // Check if the page parameter contains a slash, if not, append '/index.php'
-        if (!page.includes('/')) {
-            page += '/index.php';
-        }
-    
-        // Dynamically set window_name based on the page parameter if not provided
-        if (!window_name) {
-            // Extract the first part of the page parameter before the slash
-            const pageName = page.split('/')[0];
-            window_name = `${pageName}_window`;
-        }
-    
-        return new Promise((resolve, reject) => {
-            let existingModal = document.querySelector("[data-window='" + window_name + "']");
-            if(existingModal) {
-                this.showModal(window_name);
-                let draggableInstance = Draggable.modals.find(modal => modal.element === existingModal);
-                if(draggableInstance) {
-                    draggableInstance.bringToFront();
-                } else {
-                    console.error("No draggable instance found for existing modal");
-                }
- 
-            } else {
-                this.load({
-                    url: 'modals/' + page,
-                    method: 'GET',
-                    success: (data) => {
-                        this.html(document.body, data, 'append');
-        
-                        const draggable = new Draggable("[data-window='" + window_name + "']", {
-                            start: function() {},
-                            drag: function() {},
-                            stop: function() {
-                                this.classList.remove('dragging');
-                            }
-                        });
-        
-                        window.modalResolves[window_name] = resolve;
-                    }
-                });
-            }
-        });
-    },   
-    showModal(modalId) {
-        var modal = document.querySelector("[data-window='" + modalId + "']");
-        if(modal && modal.style.display === 'none') {
-            modal.style.display = 'block';
-        }
-    },
-
-    hideModal: function(modalId) {
-        var modal = document.querySelector("[data-window='" + modalId + "']");
-        if(modal) {
-          modal.style.display = 'none';
-        }
-    },
-
-    modalExists: function(modalId) {
-        var modal = document.querySelector("[data-window='" + modalId + "']");
-        return modal !== null;
-    },
-      
-    closeModal: function(id) {
-        var modalElement = document.querySelector("[data-window='" + id + "']");
-        if(modalElement) {
-            modalElement.remove();
-            ui.unmount(id);
-      
-            if(window.modalResolves && window.modalResolves[id]) {
-                console.log("resolving and removing", window.modalResolves[id]);
-                window.modalResolves[id]();
-                delete window.modalResolves[id];
-            }
-        }
-    },
-      
-    showAllModals: function() {
-        var modals = document.querySelectorAll("[data-window]");
-        modals.forEach(function(modal) {
-            modal.style.display = 'block';
-        });
-    },
-    hideAllModals: function() {
-        var modals = document.querySelectorAll("[data-window]");
-        modals.forEach(function(modal) {
-            modal.style.display = 'none';
-        });
-    },
-    closeAllModals: function() {
-        var windows = document.querySelectorAll('[data-window]');
-        windows.forEach(function(windowElement) {
-            var id = windowElement.getAttribute('data-window');
-            windowElement.remove();
-            ui.unmount(id);
         });
     },
     html: function(selectorOrElement, htmlString, action = 'replace') {
@@ -178,7 +72,7 @@ var ui = {
           }
         }
     },
-    load: async function({ url, method = 'GET', data = null, outputType = 'text', success, error }) {
+    ajax: async function({ url, method = 'GET', data = null, outputType = 'text', success, error }) {
         try {
       
           const queryParams = new URLSearchParams(data).toString();
