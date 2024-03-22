@@ -1,9 +1,8 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-if($auth) {
-
+if ($auth) {
 ?>
-
+<div data-window='ui_window'>
 <div class='fixed top-0 right-0 mt-2 z-10 flex items-center'>
 <button class="green_button p-3 text-xs rounded shadow float-right mr-2" onclick="ui.modal('gameEditor','game_editor_window');">Game Editor</button>
 
@@ -31,7 +30,21 @@ if($auth) {
 
     </div>
   </div>
+</div>
 
+    <script>
+      var ui_window = {
+        start: function() {
+
+        },
+        unmount: function() {
+
+        }
+      }
+      ui_window.start();
+    </script>
+
+  </div>
 <?php
 }
 ?>

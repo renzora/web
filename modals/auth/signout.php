@@ -40,7 +40,7 @@ if($auth) {
               url: 'modals/auth/ajax/signout_ajax.php',
               success: function(data) {
                 ui.notif("You are now signed out. Please come back again soon :)", 'bottom-center');
-                ui.loadGui();
+                ui.modal('ui');
                 ui.modal('auth');
                 ui.closeModal('signout_window');
               }

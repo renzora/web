@@ -91,7 +91,7 @@ if(!$auth) {
             success: function(data) {
               console.log(data);
               if(data.message == 'login_complete') {
-                ui.loadGui();
+                ui.modal('ui');
                 ui.notif("You are now signed in as " + login_username, 'bottom-center');
                 ui.closeModal("auth_window");
               } else {
@@ -121,7 +121,7 @@ if(!$auth) {
                 if(data == 'registration_complete') {
                   ui.notif("Welcome to Renzora, " + register_username + "!");
                   ui.closeModal("auth_window");
-                  ui.loadGui();
+                  ui.modal('ui');
                 } else {
                   ui.modal('auth/error.php?code=' + data.message, 'auth_error_window');
                 }

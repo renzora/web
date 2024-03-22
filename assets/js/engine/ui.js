@@ -34,31 +34,6 @@ var ui = {
             }, 3000);
         });
     },
-    loadGui: function() {
-        var guiContainer = document.querySelector('.gui');
-        if (!guiContainer) {
-            guiContainer = document.createElement('div');
-            guiContainer.className = 'gui';
-            document.body.appendChild(guiContainer);
-        }
-    
-        this.load({
-            method: 'GET',
-            url: 'ajax/loadGui.php',
-            success: function(data) {
-                guiContainer.innerHTML = data;
-            }
-        });
-    },
-    removeGui: function() {
-        var uiElement = document.querySelector('.gui');
-        if(uiElement) uiElement.remove();
-    
-        var windows = document.querySelectorAll('[data-window]');
-        windows.forEach(function(window) {
-            window.remove();
-        });
-    },
     closestDataWindow: function(element) {
         while(element && !element.dataset.window) {
             element = element.parentElement;
