@@ -13,6 +13,7 @@ if ($auth) {
 <div class='clearfix'></div>
 <div class='relative'>
   <div class='container text-light window_body p-4' style='display: grid; grid-template-columns: 1fr 3fr; gap: 20px;'>
+
     <div class='left-menu' style='background: #1b2428; padding: 10px; display: flex; flex-direction: column; border-radius: 5px;'>
       <ul class="tab-list cursor-pointer">
         <li class="tab-link active" data-tab="items">Items</li>

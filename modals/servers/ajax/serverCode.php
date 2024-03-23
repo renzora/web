@@ -7,12 +7,9 @@ if($auth) {
 
     $code = clean($_GET['code']);
 
-    $find_code = $db->prepare("SELECT * FROM servers WHERE code = :code");
-    $find_code->execute([ ':code' => $code ]);
+    $show_server = $serversCollection->findOne(['code' => $code]);
 
-    if($find_code->rowCount() >0) {
-        $show_server = $find_code->fetch(PDO::FETCH_OBJ);
-
+    if($show_server) {
         $json = array(
             "uno" => $show_server->ip,
             "dos" => $show_server->port,

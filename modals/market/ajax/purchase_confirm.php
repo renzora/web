@@ -2,42 +2,28 @@
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
 if($auth) {
-
     $id = $_POST['id'];
 
-    // Find the item in the market
-    $find_item = $db->prepare("SELECT * FROM market WHERE id = :id");
-    $find_item->execute([':id' => $id]);
-    $item = $find_item->fetch(PDO::FETCH_OBJ);
+    $marketCollection = $db->market;
+    $item = $marketCollection->findOne(['id' => $id]);
 
     if($item) {
-        // Get the user's current coin balance
-        $get_user_coins = $db->prepare("SELECT coins FROM users WHERE id = :uid");
-        $get_user_coins->execute([':uid' => $user->id]);
-        $user_coins = $get_user_coins->fetch(PDO::FETCH_OBJ)->coins;
+        $usersCollection = $db->users;
+        $userDocument = $usersCollection->findOne(['id' => $user->id]);
+        $user_coins = $userDocument->coins ?? 0;
 
-        // Check if the user can afford the item
-        if ($user_coins >= $item->price) {
-            // Check if the user already has the item in their inventory
-            $check_inventory = $db->prepare("SELECT * FROM inventory WHERE item_id = :item_id AND uid = :uid");
-            $check_inventory->execute([':item_id' => $item->item_id, ':uid' => $user->id]);
-            $inventory_item = $check_inventory->fetch(PDO::FETCH_OBJ);
+        if($user_coins >= $item->price) {
+            $inventoryCollection = $db->inventory;
+            $inventoryItem = $inventoryCollection->findOne(['item_id' => $item->item_id, 'uid' => $user->id]);
 
-            if ($inventory_item) {
-                // If item exists, update the quantity
-                $new_quantity = $inventory_item->quantity + 1;
-                $update = $db->prepare("UPDATE inventory SET quantity = :quantity WHERE item_id = :item_id AND uid = :uid");
-                $update->execute([':quantity' => $new_quantity, ':item_id' => $item->item_id, ':uid' => $user->id]);
+            if($inventoryItem) {
+                $new_quantity = $inventoryItem->quantity + 1;
+                $inventoryCollection->updateOne(['item_id' => $item->item_id, 'uid' => $user->id], ['$set' => ['quantity' => $new_quantity]]);
             } else {
-                // If item does not exist, insert it into the database
-                $insert = $db->prepare("INSERT INTO inventory (item_id, uid, quantity) VALUES(:item_id, :uid, 1)");
-                $insert->execute([':item_id' => $item->item_id, ':uid' => $user->id]);
+                $inventoryCollection->insertOne(['item_id' => $item->item_id, 'uid' => $user->id, 'quantity' => 1]);
             }
 
-            // Deduct the price from the user's coins
-            $deduct_coins = $db->prepare("UPDATE users SET coins = coins - :price WHERE id = :uid");
-            $deduct_coins->execute([':price' => $item->price, ':uid' => $user->id]);
-
+            $usersCollection->updateOne(['id' => $user->id], ['$inc' => ['coins' => -$item->price]]);
         } else {
             echo 'cant_afford';
         }

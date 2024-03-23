@@ -5,49 +5,42 @@ include $_SERVER['DOCUMENT_ROOT'] . '/ajax/helpers/inputCheck.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/ajax/helpers/generateServerKeys.php';
 
 if($auth) {
-
     $ip = clean($_POST['ip']);
     $port = clean($_POST['port']);
 
     if(isPublicIP()) {
+        $existingServer = $serversCollection->findOne(['ip' => $ip, 'port' => $port]);
 
-        $check_server = $db->prepare("SELECT * FROM servers WHERE ip = :ip && port = :port");
-        $check_server->execute([ ':ip' => $ip ]);
-    
-        if($check_server->rowCount() == 0) {
-            
-            $create_server = $db->prepare("INSERT INTO servers (ip, port, secretKey, owner, online, category, code) VALUES(:server_name, :ip, :port, :secretKey, :owner, :online, :category, :code)");
-    
-            $create_server->execute([
-                ':ip' => $ip,
-                ':port' => $port,
-                ':secretKey' => generateSecureKey(),
-                ':owner' => $user->id,
-                ':online' => 0,
-                ':category' => 27,
-                ':code' => generateServerCode()
+        if(!$existingServer) {
+            $secretKey = generateSecureKey();
+            $serverCode = generateServerCode();
+            $serversCollection->insertOne([
+                'ip' => $ip,
+                'port' => $port,
+                'secretKey' => $secretKey,
+                'owner' => $user->id,
+                'online' => 0,
+                'category' => 27,
+                'code' => $serverCode
             ]);
-    
-            $json = array(
-                "uno" => $show_server->ip,
-                "dos" => $show_server->port,
-                "tres" => generateSecureKey(),
+
+            $json = [
+                "uno" => $ip,
+                "dos" => $port,
+                "tres" => $secretKey,
                 "message" => "server_created"
-            );
+            ];
             echo json_encode($json);
-    
         } else {
-            $json = array(
+            $json = [
                 "message" => "server_duplicate_exists"
-            );
+            ];
             echo json_encode($json);
         }
-
     } else {
-        $json = array(
+        $json = [
             "message" => "ip_not_valid"
-        );
+        ];
         echo json_encode($json);
     }
-
 }

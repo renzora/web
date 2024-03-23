@@ -18,10 +18,10 @@ if ($auth) {
         <div class="w-1/4 p-2">
 
         <div class="bg-yellow-600 text-white p-2 rounded mb-3">
-          <?php
-        $get_user_coins = $db->prepare("SELECT coins FROM users WHERE id = :uid");
-        $get_user_coins->execute([':uid' => $user->id]);
-        $user_coins = $get_user_coins->fetch(PDO::FETCH_OBJ)->coins;
+        <?php
+        $userCoinsCollection = $db->users;
+        $userDocument = $userCoinsCollection->findOne(['id' => $user->id]);
+        $user_coins = $userDocument->coins ?? 0;
         ?>
           <?php echo number_format($user_coins); ?> Coins
         </div>
@@ -31,10 +31,11 @@ if ($auth) {
         </div>
 
             <ul id="market_window_category" class="list-group list-group-flush rounded shadow border border-dark pointer" style="overflow-y: auto; height: 400px;">
-                <?php
-                $find_market_cat = $db->prepare("SELECT * FROM marketcategory WHERE active = 1 ORDER BY name ASC");
-                $find_market_cat->execute();
-                while($market_cat = $find_market_cat->fetch(PDO::FETCH_OBJ)) {
+            <?php
+                // Fetching market categories from MongoDB
+                $marketCategoryCollection = $db->marketcategory; // Assume your collection is named 'marketcategory'
+                $marketCategories = $marketCategoryCollection->find(['active' => 1], ['sort' => ['name' => 1]]); // Assuming 'active' is a field and categories are sorted by 'name'
+                foreach ($marketCategories as $market_cat) {
                     echo '<li class="list-group-item px-2" onclick="market_window.load_items(\''.$market_cat->name.'\');">'.ucfirst($market_cat->name).'</li>';
                 }
                 ?>

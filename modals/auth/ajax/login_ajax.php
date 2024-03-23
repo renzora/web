@@ -4,36 +4,37 @@ include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/ajax/helpers/inputCheck.php';
 
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
-if(!$auth) {
+if (!$auth) {
 
   $login_username = clean($_POST['login_username']);
   $login_password = clean($_POST['login_password']);
 
-  if($login_username == '' or $login_password == '') {
-
+  if ($login_username == '' or $login_password == '') {
     $json = array("message" => "error_1");
     echo json_encode($json);
-
   } else {
 
-    $check_username = $db->prepare("SELECT * FROM users WHERE username = :username or email = :email");
-    $check_username->execute([ ':username' => $login_username, ':email' => $login_username ]);
-    $show_username = $check_username->fetch(PDO::FETCH_OBJ);
+    $usersCollection = $db->selectCollection('users');
 
-    if($check_username->rowCount() == 0) {
+    $user = $usersCollection->findOne([
+      '$or' => [
+        ['username' => $login_username],
+        ['email' => $login_username]
+      ]
+    ]);
+
+    if (!$user) {
       $json = array("message" => "user_not_found");
       echo json_encode($json);
     } else {
-
-      if(password_verify($login_password, $show_username->password)) {
-
+      if(password_verify($login_password, $user['password'])) { 
+    
         $payload = [
-          'id' => $show_username->id,
-          'username' => $show_username->username
+          'id' => (string)$user['_id'],
+          'username' => $user['username']
         ];
-        
+
         $jwt = JWT::encode($payload, $_ENV['JWT_KEY'], 'HS256');
         setcookie("renaccount", $jwt, 2147483647, '/');
 
@@ -47,3 +48,4 @@ if(!$auth) {
     }
   }
 }
+?>

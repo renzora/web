@@ -1,8 +1,8 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-if ($auth) {
-    $find_cat = $db->prepare("SELECT * FROM roomcategory");
-    $find_cat->execute();
+if($auth) {
+    $collection = $db->roomcategories;
+    $find_cat = $collection->find(); 
 ?>
 
 <div data-window='createroom_window' class='window window_bg' style='width: 350px; background: #b5443e;'>
@@ -20,13 +20,11 @@ if ($auth) {
                 <textarea id="createroom_window_description" class="w-full p-2 border border-gray-300 rounded mt-2" placeholder="Room Description"></textarea>
                 <select id="createroom_window_category" class="w-full form-select form-select-lg border border-dark shadow mb-2" aria-label="Default select example">
                     <option value="select">Select Category</option>
-                    <?php 
-                    while ($cat = $find_cat->fetch(PDO::FETCH_OBJ)) {
-                    ?>
-                        <option value="<?php echo $cat->name; ?>"><?php echo $cat->name; ?></option>
-                    <?php 
-                    }
-                    ?>
+                    <?php foreach ($find_cat as $cat): ?>
+                    <option value="<?php echo htmlspecialchars($cat->name, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php echo htmlspecialchars($cat->name, ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                    <?php endforeach; ?>
                 </select>
                 <div class="text-center">
                     <button class="btn btn-lg btn-light mt-2" onclick="modal.load('world');">Back</button>

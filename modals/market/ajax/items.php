@@ -1,18 +1,15 @@
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
-if ($auth) {
-    // Check if the 'item_id' GET variable is set for a standalone item
+$marketCollection = $db->market;
+
+if($auth) {
     if (isset($_GET['item_id'])) {
         $itemId = $_GET['item_id'];
 
-        // Fetch a specific item by its ID
-        $find_item = $db->prepare("SELECT * FROM market WHERE id = :itemId");
-        $find_item->execute([':itemId' => $itemId]);
+        $item = $marketCollection->findOne(['id' => $itemId]);
 
-        // Display the specific item
-        if ($item = $find_item->fetch(PDO::FETCH_OBJ)) {
-            // Set the background image URL for the item
+        if($item) {
             $imageURL = "inc/roomgen.php?mode=item&item_id=" . $item->item_id;
             ?>
 
@@ -22,7 +19,6 @@ if ($auth) {
 
             <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
                 
-        <!-- Item Details and Purchase Button -->
         <div class="p-4 w-full md:w-1/2 flex flex-col md:flex-row md:items-center">
             <div class="flex-grow">
                 <h1 class="text-2xl font-bold text-gray-800 mb-2"><?php echo $item->item_name; ?></h1>
@@ -33,7 +29,6 @@ if ($auth) {
             </div>
         </div>
 
-        <!-- Item Image -->
         <img src="<?php echo $imageURL; ?>&size=xl&bg=1" class="w-full md:w-1/2 object-cover" />
     </div>
 
@@ -42,19 +37,16 @@ if ($auth) {
             echo "<p>Item not found.</p>";
         }
     } else {
-        // Original section for displaying items by category
         $cat = $_GET['id'];
 
-        $find_items = $db->prepare("SELECT * FROM market WHERE type = :cat");
-        $find_items->execute([':cat' => $cat]);
+        $items = $marketCollection->find(['type' => $cat]);
         ?>
 
         <div class="grid grid-cols-6 gap-2">
 
         <?php
 
-        while ($items = $find_items->fetch(PDO::FETCH_OBJ)) {
-            // Set the background image URL
+            foreach ($items as $item) {
             $imageURL = "inc/roomgen.php?mode=item&item_id=" . $items->item_id;
             ?>
             <div class="rounded border border-black shadow-xl cursor-pointer" onclick="market_window.load_profile(<?php echo $items->id; ?>);">

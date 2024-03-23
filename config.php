@@ -2,10 +2,16 @@
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
+use MongoDB\Client as MongoClient;
 
 try {
-    $db = new PDO('mysql:host=' . $_ENV['DB_HOST'] . ';port=' . $_ENV['DB_PORT'] . ';dbname=' . $_ENV['DB_DATABASE'], $_ENV['DB_USER'], $_ENV['DB_PASSWORD']);
-} catch(PDOException $e) {
+    $mongoClient = new MongoClient("mongodb://" . $_ENV['DB_HOST'] . ":" . $_ENV['DB_PORT'], [
+        "username" => $_ENV['MONGO_INITDB_ROOT_USERNAME'],
+        "password" => $_ENV['MONGO_INITDB_ROOT_PASSWORD']
+    ]);
+
+    $db = $mongoClient->selectDatabase($_ENV['DB_DATABASE']);
+} catch (Exception $e) {
     print "Error: " . $e->getMessage();
     die();
 }
@@ -14,7 +20,6 @@ if (!isset($_COOKIE['renaccount'])) {
     $auth = FALSE;
 } else {
     try {
-        // Adjusted to the correct usage for firebase/php-jwt v6.10.0
         $decoded = JWT::decode($_COOKIE['renaccount'], new \Firebase\JWT\Key($_ENV['JWT_KEY'], 'HS256'));
         $user = $decoded;
         $auth = TRUE;

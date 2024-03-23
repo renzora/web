@@ -3,27 +3,25 @@ header('Content-Type: application/json');
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
 if($auth) {
+    $storymodeChaptersCollection = $db->storymodeChapters;
+    $storymodeProgressCollection = $db->storymodeProgress;
 
     $id = $_GET['id'];
-    $find_story = $db->prepare("SELECT * FROM storymodeChapters WHERE id = :id");
-    $find_story->execute([ ':id' => $id ]);
+    $story = $storymodeChaptersCollection->findOne(['id' => $id]);
 
-    if($find_story->rowCount() == 0) {
-        echo 'not_found';
+    if(!$story) {
+        echo json_encode(['error' => 'not_found']);
     } else {
-        $story = $find_story->fetch(PDO::FETCH_OBJ);
+        $progress = $storymodeProgressCollection->findOne(['chapter_id' => $story->id, 'uid' => $user->id]);
 
-        $find_progress = $db->prepare("SELECT * FROM storymodeProgress WHERE chapter_id = :chapter_id AND uid = :uid");
-        $find_progress->execute([ ':chapter_id' => $story->id, ':uid' => $user->id ]);
-
-        if($find_progress->rowCount() == 0) {
-            // insert progress for chapter
-            $insert = $db->prepare("INSERT INTO storymodeProgress (uid, chapter_id, progress) VALUES(:uid, :chapter_id, :progress)");
-            $insert->execute([ ':uid' => $user->id, ':chapter_id' => $story->id, ':progress' => 'objective1']);
+        if(!$progress) {
+            $storymodeProgressCollection->insertOne([
+                'uid' => $user->id, 
+                'chapter_id' => $story->id, 
+                'progress' => 'objective1'
+            ]);
             $objective = 'objective1';
-
         } else {
-            $progress = $find_progress->fetch(PDO::FETCH_OBJ);
             $objective = $progress->progress;
         }
 
@@ -35,3 +33,4 @@ if($auth) {
         ]);
     }
 }
+?>

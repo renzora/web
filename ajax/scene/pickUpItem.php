@@ -1,6 +1,11 @@
 <?php
 header('Content-Type: application/json');
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+
+$roomsCollection = $db->rooms; // Assuming the collection is named 'rooms'
+$inventoryCollection = $db->inventory; // Assuming the collection for inventory
+
+include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 include 'calculateCollision.php';
 
 if($auth) {
@@ -9,66 +14,47 @@ if($auth) {
     $itemId = $_POST['item_id'];
     $room_id = $_POST['room_id'];
 
-    // Find the room
-    $find_room = $db->prepare("SELECT * FROM rooms WHERE id = :id AND uid = :uid");
-    $find_room->execute([':id' => $room_id, ':uid' => $user->id]);
+    $room = $roomsCollection->findOne(['id' => $room_id, 'uid' => $user->id]);
 
-    if($find_room->rowCount() == 0) {
+    if(!$room) {
         echo json_encode(['status' => 'error', 'message' => 'Room does not exist']);
     } else {
-        $room = $find_room->fetch(PDO::FETCH_ASSOC);
-        $itemsData = json_decode($room['items'], true);
-
-        // Initialize variable to store the item_id of the picked-up item
+        $itemsData = $room['items'];
         $pickedUpItemId = null;
 
-        // Search for the item with the specified position and remove it
-        foreach ($itemsData['items'] as $key => $item) {
-            // Check if the current item's id matches the provided item_id
+        foreach ($itemsData as $key => $item) {
             if ($item['id'] == $itemId) {
                 foreach ($item['position'] as $position) {
                     if ($position['x'] == $x && $position['y'] == $y) {
-                        $pickedUpItemId = $item['id']; // Capture the item_id
-                        unset($itemsData['items'][$key]);
-                        $itemsData['items'] = array_values($itemsData['items']);
-                        break 2; // Break both foreach loops
+                        $pickedUpItemId = $item['id'];
+                        unset($itemsData[$key]);
+                        break 2;
                     }
                 }
             }
         }
 
-        // Update the database
-        $updatedData = json_encode($itemsData);
+        $itemsData = array_values($itemsData);
 
-        $updatedCollision = updateRoomWithItems($updatedData, $room['numX'], $room['numY']);
-        $updatedCollisionJson = json_encode($updatedCollision);
+        $updatedCollision = updateRoomWithItems($itemsData, $room['numX'], $room['numY']);
+        $roomsCollection->updateOne(['id' => $room_id], ['$set' => ['items' => $itemsData, 'collision' => $updatedCollision]]);
 
-        $update_room = $db->prepare("UPDATE rooms SET items = :items, collision = :collision WHERE id = :id");
-        $update_room->execute([':items' => $updatedData, ':collision' => $updatedCollisionJson, ':id' => $room_id]);
+        if($pickedUpItemId !== null) {
+            $inventoryItem = $inventoryCollection->findOne(['item_id' => $pickedUpItemId, 'uid' => $user->id]);
 
-        // Check if the picked-up item exists in the inventory
-        if ($pickedUpItemId !== null) {
-            $check_inventory = $db->prepare("SELECT * FROM inventory WHERE item_id = :item_id AND uid = :uid");
-            $check_inventory->execute([':item_id' => $pickedUpItemId, ':uid' => $user->id]);
-
-            if ($check_inventory->rowCount() > 0) {
-                // If item exists, increment quantity
-                $inventory_item = $check_inventory->fetch(PDO::FETCH_ASSOC);
-                $new_quantity = $inventory_item['quantity'] + 1;
-                $update_inventory = $db->prepare("UPDATE inventory SET quantity = :quantity WHERE id = :id");
-                $update_inventory->execute([':quantity' => $new_quantity, ':id' => $inventory_item['id']]);
+            if($inventoryItem) {
+                $newQuantity = $inventoryItem['quantity'] + 1;
+                $inventoryCollection->updateOne(['item_id' => $pickedUpItemId, 'uid' => $user->id], ['$set' => ['quantity' => $newQuantity]]);
             } else {
-                // If item does not exist, insert new record
-                $insert_inventory = $db->prepare("INSERT INTO inventory (item_id, uid, quantity) VALUES (:item_id, :uid, 1)");
-                $insert_inventory->execute([':item_id' => $pickedUpItemId, ':uid' => $user->id]);
+                $inventoryCollection->insertOne(['item_id' => $pickedUpItemId, 'uid' => $user->id, 'quantity' => 1]);
             }
         }
 
-        echo json_encode(array(
+        echo json_encode([
             'status' => 'item_removed',
             'updatedRoom' => $itemsData,
             'collisionMap' => $updatedCollision
-        ));
+        ]);
     }
 }
 ?>

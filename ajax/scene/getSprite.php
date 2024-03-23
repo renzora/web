@@ -1,19 +1,16 @@
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
+$usersCollection = $db->users;
+
 header('Content-Type: application/json');
 
-$find_sprite = $db->prepare("SELECT * FROM users WHERE id = :id");
-$find_sprite->execute([ ':id' => $user->id ]);
+$userDocument = $usersCollection->findOne(['id' => $user->id]);
 
-if($find_sprite->rowCount() == 0) {
-    echo 'not_found';
-} else {
-    $sprite = $find_sprite->fetch(PDO::FETCH_OBJ);
-
+if ($userDocument) {
     echo json_encode([
-        'avatar' => $sprite->avatar
+        'avatar' => $userDocument->avatar
     ]);
-
+} else {
+    echo json_encode(['error' => 'not_found']);
 }
-?>

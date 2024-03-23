@@ -1,6 +1,9 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-if ($auth) {
+if($auth) {
+    $serverCategoryCollection = $db->server_category;
+    $categoriesCursor = $serverCategoryCollection->find([], ['sort' => ['weight' => 1]]);
+    $categories = iterator_to_array($categoriesCursor);
 ?>
 <div data-window='servers_window' class='window window_bg' style='width: 600px; background: #26487d;'>
 
@@ -24,10 +27,7 @@ if ($auth) {
                     <div class="clearfix"></div>
                     <ul id="servers_window_category" onclick="servers_window.category_change(event);" data-selected="10" class="list-group list-group-flush rounded shadow border border-dark cursor-pointer" style="overflow-y: auto; max-height: 400px;font-size: 16px;">
                         <?php
-                        $find_cat = $db->prepare("SELECT * FROM server_category ORDER BY weight ASC");
-                        $find_cat->execute();
-
-                        while ($server_cat = $find_cat->fetch(PDO::FETCH_OBJ)) {
+                        foreach($categories as $server_cat) {
                             echo '<li class="list-group-item px-2" data-category="'.$server_cat->id.'">'.ucfirst($server_cat->name).'</li>';
                         }
                         ?>
