@@ -80,7 +80,7 @@ if(!$auth) {
         var login_password = document.getElementById('login_password').value;
 
         if (login_username == '' || login_password == '') {
-          ui.modal('auth/error.php?code=1', 'auth_error_window');
+          modal.load('auth/error.php?code=1', 'auth_error_window');
         } else {
 
           ui.ajax({

@@ -5,12 +5,13 @@ use Firebase\JWT\JWT;
 use MongoDB\Client as MongoClient;
 
 try {
-    $mongoClient = new MongoClient("mongodb://" . $_ENV['DB_HOST'] . ":" . $_ENV['DB_PORT'], [
-        "username" => $_ENV['MONGO_INITDB_ROOT_USERNAME'],
-        "password" => $_ENV['MONGO_INITDB_ROOT_PASSWORD']
+    $mongoClient = new MongoClient("mongodb://" . $_ENV['MONGO_HOST'] . ":" . $_ENV['MONGO_PORT'], [
+        "username" => $_ENV['MONGO_USERNAME'],
+        "password" => $_ENV['MONGO_PASSWORD']
     ]);
 
-    $db = $mongoClient->selectDatabase($_ENV['DB_DATABASE']);
+    $db = $mongoClient->selectDatabase($_ENV['MONGO_DATABASE']);
+    
 } catch (Exception $e) {
     print "Error: " . $e->getMessage();
     die();

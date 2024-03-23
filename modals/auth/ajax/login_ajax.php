@@ -1,4 +1,5 @@
 <?php
+
 header('Content-type: application/json');
 include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/ajax/helpers/inputCheck.php';
@@ -17,22 +18,22 @@ if (!$auth) {
 
     $usersCollection = $db->selectCollection('users');
 
-    $user = $usersCollection->findOne([
+    $findUser = $usersCollection->findOne([
       '$or' => [
         ['username' => $login_username],
         ['email' => $login_username]
       ]
     ]);
 
-    if (!$user) {
+    if (!$findUser) {
       $json = array("message" => "user_not_found");
       echo json_encode($json);
     } else {
-      if(password_verify($login_password, $user['password'])) { 
+      if(password_verify($login_password, $findUser['password'])) { 
     
         $payload = [
-          'id' => (string)$user['_id'],
-          'username' => $user['username']
+          'id' => (string)$findUser['_id'],
+          'username' => $findUser['username']
         ];
 
         $jwt = JWT::encode($payload, $_ENV['JWT_KEY'], 'HS256');
